@@ -1,3 +1,12 @@
+CONFIG_MTK_COMBO_WIFI_HIF=axi
+MTK_ANDROID_EMI=y
+MTK_ANDROID_WMT=y
+CONNAC_VER=2_0
+MTK_COMBO_CHIP=CONNAC2X2_SOC7_0
+MTK_WLAN_SERVICE=yes
+WIFI_IP_SET=1
+WLAN_CHIP_ID=6886
+
 ccflags-y :=
 CFG_DIR ?= $(src)/configs
 
@@ -1303,9 +1312,7 @@ else
     ccflags-y += -DCFG_MTK_WIFI_AER_L05_RESET=0
 endif
 
-ifeq ($(MODULE_NAME),)
-MODULE_NAME := wlan_$(shell echo $(strip $(WLAN_CHIP_ID)) | tr A-Z a-z)_$(CONFIG_MTK_COMBO_WIFI_HIF)
-endif
+MODULE_NAME := wlan_drv_gen4m_$(WLAN_CHIP_ID)
 
 ifeq ($(CONFIG_MTK_COMBO_SLT), golden)
 slt_postfix = _mc
