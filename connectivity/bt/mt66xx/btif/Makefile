@@ -7,12 +7,19 @@
 # Compile Options
 # ---------------------------------------------------
 
+BT_PLATFORM=6886
+LOG_TAG=[BT_Drv][btif]
+
 ifndef TOP
     TOP := $(srctree)/..
 endif
 
 ifneq ($(KERNEL_OUT),)
     ccflags-y += -imacros $(KERNEL_OUT)/include/generated/autoconf.h
+endif
+
+ifndef MODULE_DIR
+    MODULE_DIR := $(TOP)/zircon-modules
 endif
 
 # Force build fail on modpost warning
@@ -83,9 +90,9 @@ ccflags-y += -D CONFIG_MP_WAKEUP_SOURCE_SYSFS_STAT=1
 # ---------------------------------------------------
 # Include Path
 # ---------------------------------------------------
-CONN_INFRA_SRC := $(TOP)/vendor/mediatek/kernel_modules/connectivity/conninfra
-CONNFEM_SRC := $(TOP)/vendor/mediatek/kernel_modules/connectivity/connfem
-WMT_SRC := $(TOP)/vendor/mediatek/kernel_modules/connectivity/common
+CONN_INFRA_SRC := $(MODULE_DIR)/connectivity/conninfra
+CONNFEM_SRC := $(MODULE_DIR)/connectivity/connfem
+WMT_SRC := $(MODULE_DIR)/connectivity/common
 BTIF_SRC := $(srctree)/drivers/misc/mediatek/btif
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/connectivity/common
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/mt-plat/
@@ -99,10 +106,10 @@ ccflags-y += -I$(CONNFEM_SRC)/include
 ccflags-y += -I$(WMT_SRC)/debug_utility
 ccflags-y += -I$(BTIF_SRC)/common/inc
 
-ccflags-y += -I$(src)/core/include
-ccflags-y += -I$(src)/connsys/connac_2_0
-ccflags-y += -I$(src)/../include
-ccflags-y += -I$(src)/../include/btif
+ccflags-y += -I$(MODULE_DIR)/connectivity/bt/mt66xx/btif/core/include
+ccflags-y += -I$(MODULE_DIR)/connectivity/bt/mt66xx/btif/connsys/connac_2_0
+ccflags-y += -I$(MODULE_DIR)/connectivity/bt/mt66xx/btif/../include
+ccflags-y += -I$(MODULE_DIR)/connectivity/bt/mt66xx/btif/../include/btif
 
 # ---------------------------------------------------
 # Objects List
@@ -121,3 +128,15 @@ HIF_OBJS := btmtk_btif_main.o btmtk_queue.o
 $(MODULE_NAME)-objs  += $(CORE_OBJS)
 $(MODULE_NAME)-objs  += $(HIF_OBJS)
 $(MODULE_NAME)-objs  += $(CHIP_OBJS)
+
+extra_symbols := $(abspath $(O)/../zircon-modules/connectivity/conninfra/Module.symvers)
+extra_symbols += $(abspath $(O)/../zircon-modules/connectivity/connfem/Module.symvers)
+
+all:
+	$(MAKE) -C $(KERNEL_SRC) M=$(M) modules $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)"
+
+modules_install:
+	$(MAKE) M=$(M) -C $(KERNEL_SRC) modules_install
+
+clean:
+	$(MAKE) -C $(KERNEL_SRC) M=$(M) clean
