@@ -226,7 +226,6 @@ static struct sdio_driver mtk_sdio_driver = {
 *                                 M A C R O S
 ********************************************************************************
 */
-#define dev_to_sdio_func(d)	container_of(d, struct sdio_func, dev)
 
 
 /*******************************************************************************
